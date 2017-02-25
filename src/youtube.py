@@ -1,12 +1,15 @@
-# download list of episodes after some date
-
 from subprocess import call
 import requests
 from transliterate import translit
 from pytube import YouTube
 
 def get_title(item, sub):
-    raw_title = sub.name + '|' + item['snippet']['title'].replace(' ', '_')
+    """
+    Get title of the youtube video
+    Try to transliterate it, in case it is
+    in non-cyrillic characters
+    """
+    raw_title = (sub.name + '|' + item['snippet']['title']).replace(' ', '_')
     title = raw_title
     try:
         title = translit(raw_title, reversed=True)
@@ -14,16 +17,22 @@ def get_title(item, sub):
         pass
     return title
 
-def download_video(item, sub, title):
-    id = item['id']['videoId']    
-    link = 'http://www.youtube.com/watch?v={link}'.format(link=id)
-    yt = YouTube(link)
-    yt.get_videos()
+def download_video(item, title):
+    """
+    Download video from youtube in mp4 format
+    """
+    video_id = item['id']['videoId']
+    link = 'http://www.youtube.com/watch?v={link}'.format(link=video_id)
+    yt_files = YouTube(link)
+    yt_files.get_videos()
     video_filename = 'videos/{title}.mp4'.format(title=title)
-    yt.filter('mp4')[0].download(video_filename)
+    yt_files.filter('mp4')[0].download(video_filename)
     return video_filename
 
 def convert_video_audio(title, video_filename):
+    """
+    Convert given video to the mp3
+    """
     audio_filename = 'audios/{title}.mp3'.format(title=title)
     call([
         'ffmpeg',
@@ -36,14 +45,21 @@ def convert_video_audio(title, video_filename):
     ])
     return audio_filename
 
-def processVideos(sub, key):
-    videos = loadVideos(sub, key)
+def process_videos(sub, key):
+    """
+    get all new episodes for the given subscription
+    download them and convert to the mp3
+    """
+    videos = load_videos(sub, key)
     for item in videos:
         title = get_title(item, sub)
-        video_filename = download_video(item, sub, title)
-        audio_filename = convert_video_audio(title=title, video_filename=video_filename)
+        video_filename = download_video(item, title)
+        convert_video_audio(title=title, video_filename=video_filename)
 
-def loadVideos(sub, key):
+def load_videos(sub, key):
+    """
+    fetch all new episodes of the youtube channel
+    """
     url = 'https://www.googleapis.com/youtube/v3/search'
     params = {
         'publishedAfter': sub.fetchedBefore,
