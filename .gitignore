@@ -1,0 +1,7 @@
+*.py[oc]
+
+/environment
+/audios/*
+/videos/*
+/venv
+*.db
