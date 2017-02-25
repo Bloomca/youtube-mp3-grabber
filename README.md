@@ -1,5 +1,7 @@
 # Youtube-grabber
 
+[![Build Status](https://travis-ci.org/Bloomca/youtube-mp3-grabber.svg?branch=master)](https://travis-ci.org/Bloomca/youtube-mp3-grabber)
+
 This is a simple CLI application which allows to subscribe to channels in youtube, and then you'll be able to download all new episodes (s), both as a video and an audio. I use it for automatic downloading audios, to be able to listen it as a podcast later. 
 All subscriptions and latest timestamps are stored in sqlite, so episodes shouldn't be downloaded twice.
 
